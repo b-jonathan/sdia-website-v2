@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Running JS/TS linters via lint-staged (from frontend)..."
-cd frontend
 npx lint-staged
 FRONTEND_STATUS=$?
 cd ..
