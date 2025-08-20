@@ -7,7 +7,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "prepare": "husky install",
+    "prepare": "husky",
     "lint-fix": "bash ./scripts/lint-fix.sh"
   },
   "lint-staged": {
