@@ -1,37 +1,46 @@
-"use client"
+"use client";
 
-import { Navigation } from "@/components/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Users, Calendar, Award, Heart, Target, Eye, ArrowRight, Play } from "lucide-react"
-import Image from "next/image"
-import { useEffect, useState } from "react"
+import { Navigation } from "@/components/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Users,
+  Calendar,
+  Award,
+  Heart,
+  Target,
+  Eye,
+  ArrowRight,
+  Play,
+} from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 // Counter animation hook
 function useCounter(end: number, duration = 2000) {
-  const [count, setCount] = useState(0)
-  const [isVisible, setIsVisible] = useState(false)
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!isVisible) return
+    if (!isVisible) return;
 
-    let startTime: number
+    let startTime: number;
     const animate = (currentTime: number) => {
-      if (!startTime) startTime = currentTime
-      const progress = Math.min((currentTime - startTime) / duration, 1)
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
 
-      setCount(Math.floor(progress * end))
+      setCount(Math.floor(progress * end));
 
       if (progress < 1) {
-        requestAnimationFrame(animate)
+        requestAnimationFrame(animate);
       }
-    }
+    };
 
-    requestAnimationFrame(animate)
-  }, [end, duration, isVisible])
+    requestAnimationFrame(animate);
+  }, [end, duration, isVisible]);
 
-  return { count, setIsVisible }
+  return { count, setIsVisible };
 }
 
 // Stats component with animation
@@ -41,46 +50,46 @@ function StatCard({
   label,
   suffix = "",
 }: {
-  icon: any
-  value: number
-  label: string
-  suffix?: string
+  icon: any;
+  value: number;
+  label: string;
+  suffix?: string;
 }) {
-  const { count, setIsVisible } = useCounter(value)
+  const { count, setIsVisible } = useCounter(value);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true)
+          setIsVisible(true);
         }
       },
-      { threshold: 0.1 },
-    )
+      { threshold: 0.1 }
+    );
 
-    const element = document.getElementById(`stat-${label}`)
-    if (element) observer.observe(element)
+    const element = document.getElementById(`stat-${label}`);
+    if (element) observer.observe(element);
 
-    return () => observer.disconnect()
-  }, [setIsVisible, label])
+    return () => observer.disconnect();
+  }, [setIsVisible, label]);
 
   return (
     <Card
       id={`stat-${label}`}
-      className="text-center p-6 hover:shadow-lg transition-all duration-300 border-secondary-200 hover:border-secondary-400"
+      className="border-secondary-200 p-6 text-center transition-all duration-300 hover:border-secondary-400 hover:shadow-lg"
     >
       <CardContent className="p-0">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full mb-4">
-          <Icon className="w-8 h-8 text-white" />
+        <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-700">
+          <Icon className="h-8 w-8 text-white" />
         </div>
-        <div className="text-3xl font-bold text-primary-600 mb-2">
+        <div className="mb-2 text-3xl font-bold text-primary-600">
           {count}
           {suffix}
         </div>
-        <div className="text-gray-600 font-medium">{label}</div>
+        <div className="font-medium text-gray-600">{label}</div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function HomePage() {
@@ -89,7 +98,7 @@ export default function HomePage() {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
         {/* Background Video Placeholder */}
         <div className="absolute inset-0 z-0">
           <Image
@@ -103,38 +112,38 @@ export default function HomePage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <Badge className="mb-6 bg-secondary-400 text-secondary-900 hover:bg-secondary-500 px-4 py-2 text-sm font-medium">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 text-center">
+          <Badge className="mb-6 bg-secondary-400 px-4 py-2 text-sm font-medium text-secondary-900 hover:bg-secondary-500">
             Welcome to Our Community
           </Badge>
 
           {/* Logo Placeholder */}
           <div className="mb-8">
-            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center mb-6 shadow-2xl">
-              <span className="text-white font-bold text-4xl">SD</span>
+            <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-700 shadow-2xl">
+              <span className="text-4xl font-bold text-white">SD</span>
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="mb-6 text-5xl font-bold leading-tight text-white md:text-7xl">
             SDIA
             <span className="block bg-gradient-to-r from-secondary-300 to-secondary-500 bg-clip-text text-transparent">
               San Diego Indonesian Association
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Connecting Indonesian students and celebrating our rich culture through community, tradition, and friendship
-            at UC San Diego.
+          <p className="mx-auto mb-8 max-w-3xl text-xl leading-relaxed text-gray-200 md:text-2xl">
+            Connecting Indonesian students and celebrating our rich culture
+            through community, tradition, and friendship at UC San Diego.
           </p>
 
           {/* Social Media Icons */}
-          <div className="flex justify-center space-x-6 mb-8">
+          <div className="mb-8 flex justify-center space-x-6">
             <a
               href="#"
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-300 group"
+              className="group rounded-full bg-white bg-opacity-20 p-3 transition-all duration-300 hover:bg-opacity-30"
             >
               <svg
-                className="w-6 h-6 text-white group-hover:scale-110 transition-transform"
+                className="h-6 w-6 text-white transition-transform group-hover:scale-110"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -143,10 +152,10 @@ export default function HomePage() {
             </a>
             <a
               href="#"
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-300 group"
+              className="group rounded-full bg-white bg-opacity-20 p-3 transition-all duration-300 hover:bg-opacity-30"
             >
               <svg
-                className="w-6 h-6 text-white group-hover:scale-110 transition-transform"
+                className="h-6 w-6 text-white transition-transform group-hover:scale-110"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -155,10 +164,10 @@ export default function HomePage() {
             </a>
             <a
               href="#"
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-300 group"
+              className="group rounded-full bg-white bg-opacity-20 p-3 transition-all duration-300 hover:bg-opacity-30"
             >
               <svg
-                className="w-6 h-6 text-white group-hover:scale-110 transition-transform"
+                className="h-6 w-6 text-white transition-transform group-hover:scale-110"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -167,10 +176,10 @@ export default function HomePage() {
             </a>
             <a
               href="#"
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-300 group"
+              className="group rounded-full bg-white bg-opacity-20 p-3 transition-all duration-300 hover:bg-opacity-30"
             >
               <svg
-                className="w-6 h-6 text-white group-hover:scale-110 transition-transform"
+                className="h-6 w-6 text-white transition-transform group-hover:scale-110"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -179,115 +188,133 @@ export default function HomePage() {
             </a>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Button
               size="lg"
-              className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
+              className="group rounded-full bg-primary-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:bg-primary-700 hover:shadow-xl"
             >
               Join Our Community
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
 
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-4 text-lg font-semibold rounded-full backdrop-blur-sm bg-white/10 transition-all duration-300"
+              className="rounded-full border-2 border-white bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white hover:text-primary-600"
             >
-              <Play className="mr-2 w-5 h-5" />
+              <Play className="mr-2 h-5 w-5" />
               Upcoming Events
             </Button>
           </div>
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
+          <div className="flex h-10 w-6 justify-center rounded-full border-2 border-white/50">
+            <div className="mt-2 h-3 w-1 animate-pulse rounded-full bg-white/70"></div>
           </div>
         </div>
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-secondary-100 text-secondary-800 hover:bg-secondary-200">Our Purpose</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Mission & Vision</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Guided by our commitment to cultural preservation and community building
+      <section className="px-4 py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <Badge className="mb-4 bg-secondary-100 text-secondary-800 hover:bg-secondary-200">
+              Our Purpose
+            </Badge>
+            <h2 className="mb-4 text-4xl font-bold text-gray-800 md:text-5xl">
+              Mission & Vision
+            </h2>
+            <p className="mx-auto max-w-3xl text-xl text-gray-600">
+              Guided by our commitment to cultural preservation and community
+              building
             </p>
           </div>
 
           {/* Mission Section - Text Left, Image Right */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+          <div className="mb-20 grid items-center gap-12 lg:grid-cols-2">
             <div className="space-y-6">
-              <h3 className="text-4xl font-bold text-primary-600 mb-6">Our Mission</h3>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                To create a vibrant community that celebrates Indonesian culture, supports academic excellence, and
-                fosters lifelong connections among Indonesian students at UCSD. We strive to be a home away from home
-                while promoting cultural awareness and diversity on campus.
+              <h3 className="mb-6 text-4xl font-bold text-primary-600">
+                Our Mission
+              </h3>
+              <p className="text-lg leading-relaxed text-gray-700">
+                To create a vibrant community that celebrates Indonesian
+                culture, supports academic excellence, and fosters lifelong
+                connections among Indonesian students at UCSD. We strive to be a
+                home away from home while promoting cultural awareness and
+                diversity on campus.
               </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                We bring Indonesian students together through cultural events, academic support, and social activities
-                that strengthen our bonds and preserve our heritage.
+              <p className="text-lg leading-relaxed text-gray-700">
+                We bring Indonesian students together through cultural events,
+                academic support, and social activities that strengthen our
+                bonds and preserve our heritage.
               </p>
               <div className="flex items-center space-x-4 pt-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-                  <Target className="w-6 h-6 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-primary-600 to-primary-700">
+                  <Target className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-800">Our Mission</h4>
-                  <p className="text-gray-600">Building community through culture</p>
+                  <p className="text-gray-600">
+                    Building community through culture
+                  </p>
                 </div>
               </div>
             </div>
             <div className="relative">
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
+              <div className="overflow-hidden rounded-2xl shadow-2xl">
                 <Image
                   src="/images/about-group-photo.png"
                   alt="SDIA Group Photo"
                   width={600}
                   height={400}
-                  className="object-cover w-full h-[400px]"
+                  className="h-[400px] w-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br from-secondary-400 to-secondary-500 rounded-full opacity-20"></div>
-              <div className="absolute -top-6 -left-6 w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-500 rounded-full opacity-20"></div>
+              <div className="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-500 opacity-20"></div>
+              <div className="absolute -left-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-500 opacity-20"></div>
             </div>
           </div>
 
           {/* Vision Section - Image Left, Text Right */}
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="relative order-2 lg:order-1">
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
+              <div className="overflow-hidden rounded-2xl shadow-2xl">
                 <Image
                   src="/placeholder.svg?height=400&width=600&text=Vision+Group+Photo"
                   alt="SDIA Vision Photo"
                   width={600}
                   height={400}
-                  className="object-cover w-full h-[400px]"
+                  className="h-[400px] w-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-500 rounded-full opacity-20"></div>
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-secondary-400 to-secondary-500 rounded-full opacity-20"></div>
+              <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-gradient-to-br from-primary-400 to-primary-500 opacity-20"></div>
+              <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-500 opacity-20"></div>
             </div>
-            <div className="space-y-6 order-1 lg:order-2">
-              <h3 className="text-4xl font-bold text-primary-600 mb-6">Our Vision</h3>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                To be the premier Indonesian student organization that bridges cultures, empowers future leaders, and
-                creates lasting impact both within UCSD and the broader San Diego community.
+            <div className="order-1 space-y-6 lg:order-2">
+              <h3 className="mb-6 text-4xl font-bold text-primary-600">
+                Our Vision
+              </h3>
+              <p className="text-lg leading-relaxed text-gray-700">
+                To be the premier Indonesian student organization that bridges
+                cultures, empowers future leaders, and creates lasting impact
+                both within UCSD and the broader San Diego community.
               </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                We envision a future where Indonesian heritage thrives and inspires others, fostering understanding and
-                appreciation for our rich cultural diversity.
+              <p className="text-lg leading-relaxed text-gray-700">
+                We envision a future where Indonesian heritage thrives and
+                inspires others, fostering understanding and appreciation for
+                our rich cultural diversity.
               </p>
               <div className="flex items-center space-x-4 pt-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-secondary-400 to-secondary-500 rounded-lg flex items-center justify-center">
-                  <Eye className="w-6 h-6 text-white" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-secondary-400 to-secondary-500">
+                  <Eye className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-800">Our Vision</h4>
-                  <p className="text-gray-600">Inspiring cultural understanding</p>
+                  <p className="text-gray-600">
+                    Inspiring cultural understanding
+                  </p>
                 </div>
               </div>
             </div>
@@ -296,37 +323,52 @@ export default function HomePage() {
       </section>
 
       {/* Quick Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-50 via-white to-secondary-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-primary-100 text-primary-800 hover:bg-primary-200">Our Impact</Badge>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">By the Numbers</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+      <section className="bg-gradient-to-r from-primary-50 via-white to-secondary-50 py-20">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-16 text-center">
+            <Badge className="mb-4 bg-primary-100 text-primary-800 hover:bg-primary-200">
+              Our Impact
+            </Badge>
+            <h2 className="mb-4 text-4xl font-bold text-gray-800 md:text-5xl">
+              By the Numbers
+            </h2>
+            <p className="mx-auto max-w-3xl text-xl text-gray-600">
               See how our community has grown and the impact we've made together
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <StatCard icon={Users} value={150} label="Active Members" suffix="+" />
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <StatCard
+              icon={Users}
+              value={150}
+              label="Active Members"
+              suffix="+"
+            />
             <StatCard icon={Calendar} value={25} label="Events This Year" />
             <StatCard icon={Award} value={8} label="Years Strong" />
           </div>
 
           {/* Additional Stats Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8 max-w-4xl mx-auto">
-            <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-secondary-50 to-secondary-100 border-secondary-200">
+          <div className="mx-auto mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
+            <Card className="border-secondary-200 bg-gradient-to-br from-secondary-50 to-secondary-100 p-6 text-center transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-0">
-                <Heart className="w-12 h-12 text-primary-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-primary-600 mb-2">500+</div>
-                <div className="text-gray-600 font-medium">Alumni Network</div>
+                <Heart className="mx-auto mb-4 h-12 w-12 text-primary-600" />
+                <div className="mb-2 text-2xl font-bold text-primary-600">
+                  500+
+                </div>
+                <div className="font-medium text-gray-600">Alumni Network</div>
               </CardContent>
             </Card>
 
-            <Card className="text-center p-6 hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-primary-50 to-primary-100 border-primary-200">
+            <Card className="border-primary-200 bg-gradient-to-br from-primary-50 to-primary-100 p-6 text-center transition-all duration-300 hover:shadow-lg">
               <CardContent className="p-0">
-                <Award className="w-12 h-12 text-secondary-600 mx-auto mb-4" />
-                <div className="text-2xl font-bold text-secondary-600 mb-2">12</div>
-                <div className="text-gray-600 font-medium">Cultural Showcases</div>
+                <Award className="mx-auto mb-4 h-12 w-12 text-secondary-600" />
+                <div className="mb-2 text-2xl font-bold text-secondary-600">
+                  12
+                </div>
+                <div className="font-medium text-gray-600">
+                  Cultural Showcases
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -334,23 +376,26 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Ready to Join Our Family?</h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Become part of a community that celebrates Indonesian culture and creates lifelong friendships
+      <section className="bg-gradient-to-r from-primary-600 to-primary-700 py-20">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h2 className="mb-6 text-4xl font-bold text-white md:text-5xl">
+            Ready to Join Our Family?
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-xl text-primary-100">
+            Become part of a community that celebrates Indonesian culture and
+            creates lifelong friendships
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Button
               size="lg"
-              className="bg-secondary-400 hover:bg-secondary-500 text-secondary-900 px-8 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              className="rounded-full bg-secondary-400 px-8 py-4 text-lg font-semibold text-secondary-900 shadow-lg transition-all duration-300 hover:bg-secondary-500 hover:shadow-xl"
             >
               Join Now
             </Button>
             <Button
               variant="outline"
               size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 bg-transparent"
+              className="rounded-full border-2 border-white bg-transparent px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:bg-white hover:text-primary-600"
             >
               Learn More
             </Button>
@@ -359,42 +404,56 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="bg-gray-900 py-12 text-white">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">SD</span>
+              <div className="mb-4 flex items-center space-x-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-700">
+                  <span className="font-bold text-white">SD</span>
                 </div>
-                <span className="text-xl font-bold">SDIA - San Diego Indonesian Association</span>
+                <span className="text-xl font-bold">
+                  SDIA - San Diego Indonesian Association
+                </span>
               </div>
-              <p className="text-gray-400 mb-4 max-w-md">
-                Connecting Indonesian students and celebrating our rich culture through community, tradition, and
-                friendship.
+              <p className="mb-4 max-w-md text-gray-400">
+                Connecting Indonesian students and celebrating our rich culture
+                through community, tradition, and friendship.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
+              <h4 className="mb-4 font-semibold">Quick Links</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="/about" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="/about"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="/team" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="/team"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Team
                   </a>
                 </li>
                 <li>
-                  <a href="/events/upcoming" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="/events/upcoming"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Events
                   </a>
                 </li>
                 <li>
-                  <a href="/contact" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="/contact"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Contact
                   </a>
                 </li>
@@ -402,25 +461,37 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Connect</h4>
+              <h4 className="mb-4 font-semibold">Connect</h4>
               <ul className="space-y-2 text-gray-400">
                 <li>
-                  <a href="#" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="#"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Instagram
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="#"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Facebook
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="#"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     LinkedIn
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-secondary-400 transition-colors">
+                  <a
+                    href="#"
+                    className="transition-colors hover:text-secondary-400"
+                  >
                     Email
                   </a>
                 </li>
@@ -428,11 +499,14 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 SDIA - San Diego Indonesian Association. All rights reserved.</p>
+          <div className="mt-8 border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p>
+              &copy; 2024 SDIA - San Diego Indonesian Association. All rights
+              reserved.
+            </p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }

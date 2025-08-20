@@ -264,8 +264,6 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
