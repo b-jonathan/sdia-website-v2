@@ -9,7 +9,7 @@ if [ $FRONTEND_STATUS -ne 0 ]; then
   echo ""
   echo "Linting failed."
   echo "Running auto-fix..."
-  cd frontend && npm run lint-fix && cd ..
+  npm run lint-fix 
   exit 1
 fi
 
