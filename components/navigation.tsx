@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
 
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  // eslint-disable-next-line no-undef
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
@@ -41,18 +44,25 @@ export function Navigation() {
   return (
     <nav className="fixed left-1/2 top-4 z-50 w-[90%] max-w-4xl -translate-x-1/2 transform rounded-full border border-gray-200 bg-white/90 px-12 py-3 shadow-lg backdrop-blur-md">
       <div className="flex items-center justify-between">
-        <a
+        <Link
           href="/"
           className="flex items-center space-x-3 transition-opacity hover:opacity-80"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-primary-600 to-primary-700">
-            <span className="text-xs font-bold text-white">SD</span>
+          <div className="flex h-7 w-7 overflow-hidden rounded-full bg-gradient-to-br from-primary-600 to-primary-700">
+            <Image
+              src="/logo.jpeg" // make sure logo.jpeg is in /public
+              alt="SDIA Logo"
+              width={28}
+              height={28}
+              className="h-full w-full object-cover"
+            />
           </div>
+
           <span className="hidden px-8 pl-[0] font-semibold text-gray-800 sm:block">
             SDIA{" "}
           </span>
           <span className="font-semibold text-gray-800 sm:hidden">SDIA</span>
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className="hidden items-center space-x-1 lg:flex">

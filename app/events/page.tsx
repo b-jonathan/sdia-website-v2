@@ -1,6 +1,7 @@
 "use client";
 
-import { Navigation } from "@/components/navigation";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,390 +9,220 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Users,
-  ExternalLink,
-  Heart,
   X,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import Image from "next/image";
-import { useState } from "react";
 
-interface Event {
-  id: number;
+export type Event = {
+  time: any;
+  date: any;
+  id: string;
   title: string;
-  date: string;
-  time: string;
-  location: string;
   description: string;
-  longDescription: string;
-  image: string;
-  category: "cultural" | "social" | "academic" | "community";
-  attendees: number;
-  maxAttendees?: number;
-  price: string;
-  organizer: string;
-  images: string[];
-  requirements?: string[];
+  long_description?: string;
+  documentation?: string[]; // PB files
+  datetime: string; // ISO string from PB
+  instagram?: string;
+  location?: string;
+  category?: "Cultural" | "Social" | "Academic" | "Community" | string;
   isPast?: boolean;
-  gallery?: string[];
+  created: string;
+  updated: string;
+};
+
+const PB_BASE = "https://permiassdia.pockethost.io";
+const COLLECTION = "events";
+
+// Build a PocketBase file URL for a record file
+function pbFileUrl(recordId: string, filename: string) {
+  if (/^https?:\/\//i.test(filename)) return filename; // already a URL
+  return `${PB_BASE}/api/files/${COLLECTION}/${recordId}/${encodeURIComponent(filename)}`;
 }
 
-const upcomingEvents: Event[] = [
-  {
-    id: 1,
-    title: "Indonesian Cultural Night 2024",
-    date: "March 15, 2024",
-    time: "6:00 PM - 10:00 PM",
-    location: "Price Center Ballroom",
-    description:
-      "Join us for our biggest cultural celebration featuring traditional dances, music, and authentic Indonesian cuisine.",
-    longDescription:
-      "Our annual Indonesian Cultural Night is the highlight of our year, showcasing the rich diversity of Indonesian culture through traditional performances, authentic cuisine, and cultural exhibitions. This year's theme 'Unity in Diversity' celebrates the beautiful tapestry of Indonesia's 17,000 islands and 300+ ethnic groups.",
-    image: "/placeholder.svg?height=400&width=600&text=Cultural+Night+2024",
-    category: "cultural",
-    attendees: 180,
-    maxAttendees: 250,
-    price: "Free",
-    organizer: "Cultural Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=Cultural+Night+1",
-      "/placeholder.svg?height=400&width=600&text=Cultural+Night+2",
-      "/placeholder.svg?height=400&width=600&text=Cultural+Night+3",
-    ],
-    requirements: ["RSVP required", "Cultural attire encouraged"],
-  },
-  {
-    id: 2,
-    title: "Cooking Workshop: Rendang & Nasi Gudeg",
-    date: "March 22, 2024",
-    time: "2:00 PM - 5:00 PM",
-    location: "Warren College Kitchen",
-    description:
-      "Learn to cook authentic Indonesian dishes with our experienced chefs and take home delicious meals.",
-    longDescription:
-      "Master the art of Indonesian cooking in this hands-on workshop where you'll learn to prepare two iconic dishes: the rich and flavorful Rendang from West Sumatra and the sweet and savory Nasi Gudeg from Yogyakarta. All ingredients and recipes provided!",
-    image: "/placeholder.svg?height=400&width=600&text=Cooking+Workshop",
-    category: "cultural",
-    attendees: 25,
-    maxAttendees: 30,
-    price: "$15",
-    organizer: "Food Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=Cooking+1",
-      "/placeholder.svg?height=400&width=600&text=Cooking+2",
-      "/placeholder.svg?height=400&width=600&text=Cooking+3",
-    ],
-    requirements: ["Payment required", "Apron recommended"],
-  },
-  {
-    id: 3,
-    title: "Study Group: Midterm Prep",
-    date: "March 8, 2024",
-    time: "7:00 PM - 10:00 PM",
-    location: "Geisel Library, Room 2E",
-    description:
-      "Collaborative study session for midterm preparation with snacks and peer support.",
-    longDescription:
-      "Join fellow Indonesian students for a productive study session as we prepare for midterm exams. We'll provide a quiet, supportive environment with Indonesian snacks and drinks to keep you energized. Bring your textbooks and let's succeed together!",
-    image: "/placeholder.svg?height=400&width=600&text=Study+Group",
-    category: "academic",
-    attendees: 35,
-    maxAttendees: 50,
-    price: "Free",
-    organizer: "Academic Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=Study+1",
-      "/placeholder.svg?height=400&width=600&text=Study+2",
-      "/placeholder.svg?height=400&width=600&text=Study+3",
-    ],
-  },
-];
+function parseDateTime(iso: string) {
+  if (!iso) return { date: "", time: "" };
+  const d = new Date(iso);
 
-const pastEvents: Event[] = [
-  {
-    id: 4,
-    title: "Indonesian Cultural Night 2023",
-    date: "November 18, 2023",
-    time: "6:00 PM - 10:00 PM",
-    location: "Price Center Ballroom",
-    description:
-      "Our spectacular 2023 cultural showcase featuring traditional performances and authentic cuisine.",
-    longDescription:
-      "Last year's cultural night was a tremendous success with over 300 attendees enjoying traditional Indonesian performances, authentic food, and cultural exhibitions.",
-    image: "/placeholder.svg?height=400&width=600&text=Cultural+Night+2023",
-    category: "cultural",
-    attendees: 320,
-    price: "Free",
-    organizer: "Cultural Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=2023+Cultural+1",
-      "/placeholder.svg?height=400&width=600&text=2023+Cultural+2",
-      "/placeholder.svg?height=400&width=600&text=2023+Cultural+3",
-    ],
-    isPast: true,
-    gallery: [
-      "/placeholder.svg?height=300&width=400&text=Gallery+1",
-      "/placeholder.svg?height=300&width=400&text=Gallery+2",
-      "/placeholder.svg?height=300&width=400&text=Gallery+3",
-      "/placeholder.svg?height=300&width=400&text=Gallery+4",
-      "/placeholder.svg?height=300&width=400&text=Gallery+5",
-      "/placeholder.svg?height=300&width=400&text=Gallery+6",
-      "/placeholder.svg?height=300&width=400&text=Gallery+7",
-      "/placeholder.svg?height=300&width=400&text=Gallery+8",
-      "/placeholder.svg?height=300&width=400&text=Gallery+9",
-    ],
-  },
-  {
-    id: 5,
-    title: "Batik Workshop",
-    date: "October 14, 2023",
-    time: "1:00 PM - 4:00 PM",
-    location: "Visual Arts Building",
-    description:
-      "Hands-on workshop learning the traditional art of Indonesian batik making.",
-    longDescription:
-      "Students learned the ancient art of batik making, creating their own unique designs using traditional wax-resist dyeing techniques.",
-    image: "/placeholder.svg?height=400&width=600&text=Batik+Workshop",
-    category: "cultural",
-    attendees: 45,
-    price: "$20",
-    organizer: "Arts Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=Batik+1",
-      "/placeholder.svg?height=400&width=600&text=Batik+2",
-      "/placeholder.svg?height=400&width=600&text=Batik+3",
-    ],
-    isPast: true,
-    gallery: [
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+1",
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+2",
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+3",
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+4",
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+5",
-      "/placeholder.svg?height=300&width=400&text=Batik+Gallery+6",
-    ],
-  },
-  {
-    id: 6,
-    title: "Beach Cleanup & BBQ 2023",
-    date: "September 23, 2023",
-    time: "10:00 AM - 4:00 PM",
-    location: "La Jolla Shores Beach",
-    description:
-      "Community service followed by a fun beach BBQ with games and socializing.",
-    longDescription:
-      "Our community came together to clean up La Jolla Shores beach, followed by a traditional Indonesian BBQ with satay, grilled fish, and beach games.",
-    image: "/placeholder.svg?height=400&width=600&text=Beach+Cleanup+2023",
-    category: "community",
-    attendees: 65,
-    price: "$10",
-    organizer: "Community Service Committee",
-    images: [
-      "/placeholder.svg?height=400&width=600&text=Beach+1",
-      "/placeholder.svg?height=400&width=600&text=Beach+2",
-      "/placeholder.svg?height=400&width=600&text=Beach+3",
-    ],
-    isPast: true,
-    gallery: [
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+1",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+2",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+3",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+4",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+5",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+6",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+7",
-      "/placeholder.svg?height=300&width=400&text=Beach+Gallery+8",
-    ],
-  },
-];
+  // Localized strings
+  const date = d.toLocaleDateString("en-US", {
+    weekday: "short", // e.g. Sun
+    month: "short", // e.g. Sep
+    day: "numeric", // e.g. 7
+    year: "numeric", // e.g. 2025
+  });
+
+  const time = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return { date, time };
+}
+
+async function getEvents(): Promise<Event[]> {
+  const res = await fetch(
+    `${PB_BASE}/api/collections/${COLLECTION}/records?perPage=100`,
+    {
+      cache: "no-store",
+    }
+  );
+  if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
+  const data = await res.json();
+
+  return (data.items as Event[]).map(e => {
+    const { date, time } = parseDateTime(e.datetime);
+    return { ...e, date, time };
+  });
+}
+
+function categoryTone(cat?: string) {
+  const c = (cat || "").toLowerCase();
+  if (c === "cultural") return "bg-primary-600 text-white";
+  if (c === "social") return "bg-secondary-600 text-white";
+  if (c === "academic") return "bg-blue-600 text-white";
+  if (c === "community") return "bg-green-600 text-white";
+  return "bg-gray-200 text-gray-800";
+}
+
+function prettyCategory(cat?: string) {
+  if (!cat) return "Event";
+  return cat.charAt(0).toUpperCase() + cat.slice(1);
+}
+
+function isPastEvent(e: Event) {
+  if (typeof e.isPast === "boolean") return e.isPast;
+  if (!e.date) return false;
+  // Compare date only (ignore time zones)
+  const today = new Date();
+  const endOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    23,
+    59,
+    59
+  );
+  return new Date(e.date) < endOfToday;
+}
+
+/* -------------------- Modals -------------------- */
 
 function EventModal({
   event,
   isOpen,
   onClose,
-  setGalleryEvent,
+  onOpenGallery,
 }: {
   event: Event;
   isOpen: boolean;
   onClose: () => void;
-  setGalleryEvent: (event: Event | null) => void;
+  // eslint-disable-next-line no-unused-vars
+  onOpenGallery: (images: string[], title: string) => void;
 }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = useMemo(
+    () => (event.documentation || []).map(f => pbFileUrl(event.id, f)),
+    [event]
+  );
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white">
         <div className="relative">
-          {/* Image Carousel */}
-          <div className="relative h-64 md:h-80">
+          <div className="relative h-56 md:h-72">
             <Image
-              src={event.images[currentImageIndex] || "/placeholder.svg"}
+              src={images[0] || "/placeholder.svg"}
               alt={event.title}
               fill
               className="rounded-t-lg object-cover"
+              // If you haven't allowed pockethost in next.config.js, temporarily add unoptimized
+              // unoptimized
             />
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-full bg-white bg-opacity-80 p-2 transition-all hover:bg-opacity-100"
+              className="absolute right-4 top-4 rounded-full bg-white/90 p-2 shadow"
             >
               <X className="h-5 w-5" />
             </button>
-
-            {/* Carousel Navigation */}
-            {event.images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 transform space-x-2">
-                {event.images.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`h-3 w-3 rounded-full transition-all ${
-                      index === currentImageIndex
-                        ? "bg-white"
-                        : "bg-white bg-opacity-50"
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* Event Details */}
           <div className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <Badge
-                className={`${
-                  event.category === "cultural"
-                    ? "bg-primary-100 text-primary-800"
-                    : event.category === "social"
-                      ? "bg-secondary-100 text-secondary-800"
-                      : event.category === "academic"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-green-100 text-green-800"
-                }`}
-              >
-                {event.category.charAt(0).toUpperCase() +
-                  event.category.slice(1)}
+              <Badge className={categoryTone(event.category)}>
+                {prettyCategory(event.category)}
               </Badge>
-              <span className="text-2xl font-bold text-primary-600">
-                {event.price}
-              </span>
+              <div className="text-sm text-gray-500">
+                {event.date ? <span>{event.date}</span> : null}
+                {event.time ? (
+                  <span className="ml-2">• {event.time}</span>
+                ) : null}
+              </div>
             </div>
 
-            <h2 className="mb-4 text-3xl font-bold text-gray-800">
+            <h2 className="mb-3 text-2xl font-bold text-gray-900">
               {event.title}
             </h2>
 
-            <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-3">
-                <div className="flex items-center text-gray-600">
-                  <Calendar className="mr-3 h-5 w-5 text-primary-600" />
-                  {event.date}
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Clock className="mr-3 h-5 w-5 text-primary-600" />
-                  {event.time}
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <MapPin className="mr-3 h-5 w-5 text-primary-600" />
-                  {event.location}
-                </div>
-                <div className="flex items-center text-gray-600">
-                  <Users className="mr-3 h-5 w-5 text-primary-600" />
-                  {event.attendees}
-                  {event.maxAttendees ? `/${event.maxAttendees}` : ""}{" "}
-                  {event.isPast ? "attended" : "attending"}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="mb-2 font-semibold text-gray-800">
-                    Organized by:
-                  </h4>
-                  <p className="text-gray-600">{event.organizer}</p>
-                </div>
-
-                {event.requirements && (
-                  <div>
-                    <h4 className="mb-2 font-semibold text-gray-800">
-                      Requirements:
-                    </h4>
-                    <ul className="space-y-1 text-sm text-gray-600">
-                      {event.requirements.map((req, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="mr-2 mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-primary-600"></span>
-                          {req}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <h4 className="mb-3 font-semibold text-gray-800">
-                About This Event
-              </h4>
-              <p className="leading-relaxed text-gray-600">
-                {event.longDescription}
-              </p>
-            </div>
-
-            {event.isPast && event.gallery && (
-              <div className="mb-6">
-                <h4 className="mb-3 font-semibold text-gray-800">
-                  Event Gallery
-                </h4>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-                  {event.gallery.slice(0, 6).map((image, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square cursor-pointer overflow-hidden rounded-lg transition-opacity hover:opacity-80"
-                      onClick={() => setGalleryEvent(event)}
-                    >
-                      <Image
-                        src={image || "/placeholder.svg"}
-                        alt={`Gallery image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                  {event.gallery.length > 6 && (
-                    <div
-                      className="relative flex aspect-square cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-100 transition-colors hover:bg-gray-200"
-                      onClick={() => setGalleryEvent(event)}
-                    >
-                      <div className="text-center">
-                        <p className="text-2xl font-bold text-gray-600">
-                          +{event.gallery.length - 6}
-                        </p>
-                        <p className="text-sm text-gray-500">more photos</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+            {event.location && (
+              <div className="mb-3 flex items-center text-gray-600">
+                <MapPin className="mr-2 h-4 w-4 text-primary-600" />
+                {event.location}
               </div>
             )}
 
-            {!event.isPast && (
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Button className="flex-1 bg-primary-600 text-white hover:bg-primary-700">
-                  Register Now
+            <div className="prose max-w-none text-gray-700">
+              {event.description && <p className="mb-2">{event.description}</p>}
+              {event.long_description && <p>{event.long_description}</p>}
+            </div>
+
+            {/* Optional Instagram link if present */}
+            {event.instagram && (
+              <div className="mt-4">
+                <Button asChild variant="outline">
+                  <a
+                    href={
+                      event.instagram.startsWith("http")
+                        ? event.instagram
+                        : `https://instagram.com/${event.instagram.replace(/^@/, "")}`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View on Instagram
+                  </a>
                 </Button>
-                <Button variant="outline" className="flex-1 bg-transparent">
-                  <Heart className="mr-2 h-4 w-4" />
-                  Add to Favorites
-                </Button>
-                <Button variant="outline">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
+              </div>
+            )}
+            {/* Gallery from documentation */}
+            {images.length > 0 && (
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                  {images.slice(0, 6).map((img, i) => (
+                    <button
+                      key={i}
+                      className="relative aspect-square overflow-hidden rounded-lg"
+                      onClick={() => onOpenGallery(images, event.title)}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${event.title} - ${i + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                  {images.length > 6 && (
+                    <button
+                      className="flex aspect-square items-center justify-center rounded-lg bg-gray-100 text-gray-600"
+                      onClick={() => onOpenGallery(images, event.title)}
+                    >
+                      +{images.length - 6} more
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -405,54 +236,46 @@ function GalleryModal({
   images,
   isOpen,
   onClose,
-  eventTitle,
+  title,
 }: {
   images: string[];
   isOpen: boolean;
   onClose: () => void;
-  eventTitle: string;
+  title: string;
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  if (!isOpen) return null;
-
-  const nextImage = () => {
-    setCurrentIndex(prev => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
-  };
+  const [index, setIndex] = useState(0);
+  if (!isOpen || images.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
       <div className="relative w-full max-w-4xl">
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full bg-white bg-opacity-20 p-2 transition-all hover:bg-opacity-30"
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/20 p-2"
         >
           <X className="h-6 w-6 text-white" />
         </button>
 
-        <div className="relative h-96 md:h-[500px]">
+        <div className="relative h-[70vh]">
           <Image
-            src={images[currentIndex] || "/placeholder.svg"}
-            alt={`${eventTitle} - Image ${currentIndex + 1}`}
+            src={images[index]}
+            alt={`${title} - ${index + 1}`}
             fill
             className="object-contain"
           />
-
           {images.length > 1 && (
             <>
               <button
-                onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 transform rounded-full bg-white bg-opacity-20 p-2 transition-all hover:bg-opacity-30"
+                onClick={() =>
+                  setIndex(i => (i - 1 + images.length) % images.length)
+                }
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2"
               >
                 <ChevronLeft className="h-6 w-6 text-white" />
               </button>
               <button
-                onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 transform rounded-full bg-white bg-opacity-20 p-2 transition-all hover:bg-opacity-30"
+                onClick={() => setIndex(i => (i + 1) % images.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2"
               >
                 <ChevronRight className="h-6 w-6 text-white" />
               </button>
@@ -460,43 +283,22 @@ function GalleryModal({
           )}
         </div>
 
-        <div className="mt-4 text-center">
-          <h3 className="mb-2 text-xl font-semibold text-white">
-            {eventTitle}
-          </h3>
-          <p className="text-white text-opacity-80">
-            {currentIndex + 1} of {images.length}
+        <div className="mt-4 text-center text-white">
+          <p className="text-sm opacity-80">
+            {index + 1} of {images.length}
           </p>
-        </div>
-
-        {/* Thumbnail strip */}
-        <div className="mt-4 flex justify-center space-x-2 overflow-x-auto">
-          {images.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                index === currentIndex
-                  ? "border-white"
-                  : "border-transparent opacity-60"
-              }`}
-            >
-              <Image
-                src={image || "/placeholder.svg"}
-                alt={`Thumbnail ${index + 1}`}
-                width={64}
-                height={64}
-                className="h-full w-full object-cover"
-              />
-            </button>
-          ))}
         </div>
       </div>
     </div>
   );
 }
 
+/* -------------------- Card -------------------- */
+
 function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
+  const image =
+    (event.documentation?.[0] && pbFileUrl(event.id, event.documentation[0])) ||
+    "/placeholder.svg";
   return (
     <Card
       className="group cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
@@ -505,36 +307,16 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
       <CardContent className="p-0">
         <div className="relative h-48 overflow-hidden rounded-t-lg">
           <Image
-            src={event.image || "/placeholder.svg"}
+            src={image}
             alt={event.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <div className="absolute left-4 top-4">
-            <Badge
-              className={`${
-                event.category === "cultural"
-                  ? "bg-primary-600 text-white"
-                  : event.category === "social"
-                    ? "bg-secondary-600 text-white"
-                    : event.category === "academic"
-                      ? "bg-blue-600 text-white"
-                      : "bg-green-600 text-white"
-              }`}
-            >
-              {event.category.charAt(0).toUpperCase() + event.category.slice(1)}
+            <Badge className={categoryTone(event.category)}>
+              {prettyCategory(event.category)}
             </Badge>
           </div>
-          <div className="absolute right-4 top-4">
-            <Badge className="bg-white font-bold text-gray-800">
-              {event.price}
-            </Badge>
-          </div>
-          {event.isPast && (
-            <div className="absolute bottom-4 right-4">
-              <Badge className="bg-gray-800 text-white">Past Event</Badge>
-            </div>
-          )}
         </div>
 
         <div className="p-6">
@@ -542,37 +324,35 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
             {event.title}
           </h3>
 
-          <div className="mb-4 space-y-2">
-            <div className="flex items-center text-sm text-gray-600">
+          <div className="mb-4 space-y-2 text-sm text-gray-600">
+            <div className="flex items-center">
               <Calendar className="mr-2 h-4 w-4 text-primary-600" />
               {event.date}
             </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <Clock className="mr-2 h-4 w-4 text-primary-600" />
-              {event.time}
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <MapPin className="mr-2 h-4 w-4 text-primary-600" />
-              {event.location}
-            </div>
+            {event.time && (
+              <div className="flex items-center">
+                <Clock className="mr-2 h-4 w-4 text-primary-600" />
+                {event.time}
+              </div>
+            )}
+            {event.location && (
+              <div className="flex items-center">
+                <MapPin className="mr-2 h-4 w-4 text-primary-600" />
+                {event.location}
+              </div>
+            )}
           </div>
 
-          <p className="mb-4 line-clamp-2 text-sm text-gray-600">
+          <p className="line-clamp-2 text-sm text-gray-600">
             {event.description}
           </p>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-sm text-gray-500">
-              <Users className="mr-1 h-4 w-4" />
-              {event.attendees}
-              {event.maxAttendees ? `/${event.maxAttendees}` : ""}{" "}
-              {event.isPast ? "attended" : "attending"}
-            </div>
+          <div className="mt-4 flex justify-end">
             <Button
               size="sm"
               className="bg-primary-600 text-white hover:bg-primary-700"
             >
-              {event.isPast ? "View Details" : "Learn More"}
+              View
             </Button>
           </div>
         </div>
@@ -581,27 +361,58 @@ function EventCard({ event, onClick }: { event: Event; onClick: () => void }) {
   );
 }
 
+/* -------------------- Main Page -------------------- */
+
 export default function EventsPage() {
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // keep this as requested
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"upcoming" | "past">("upcoming");
-  const [galleryEvent, setGalleryEvent] = useState<Event | null>(null);
 
-  const currentEvents = activeTab === "upcoming" ? upcomingEvents : pastEvents;
-  const filteredEvents =
-    selectedCategory === "all"
-      ? currentEvents
-      : currentEvents.filter(event => event.category === selectedCategory);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryTitle, setGalleryTitle] = useState<string>("");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const items = await getEvents();
+        if (!mounted) return;
+        setEvents(items);
+      } catch (e: any) {
+        if (!mounted) return;
+        setErr(e?.message ?? String(e));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const sourceEvents = useMemo(() => {
+    if (activeTab === "upcoming") return events.filter(e => !isPastEvent(e));
+    return events.filter(e => isPastEvent(e));
+  }, [events, activeTab]);
+
+  const filteredEvents = useMemo(() => {
+    if (selectedCategory === "all") return sourceEvents;
+    const key = selectedCategory.toLowerCase();
+    return sourceEvents.filter(e => (e.category || "").toLowerCase() === key);
+  }, [sourceEvents, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/placeholder.svg?height=800&width=1920&text=SDIA+Events"
+            src="/events.jpg?height=800&width=1920&text=SDIA+Events"
             alt="SDIA Events"
             fill
             className="object-cover"
@@ -629,7 +440,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Tab Navigation */}
+      {/* Tabs */}
       <section className="border-b bg-white px-4 py-8">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8 flex justify-center">
@@ -657,7 +468,7 @@ export default function EventsPage() {
             </div>
           </div>
 
-          {/* Filter Section */}
+          {/* Filter */}
           <div className="flex flex-wrap justify-center gap-4">
             {[
               {
@@ -714,12 +525,17 @@ export default function EventsPage() {
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-gray-600">
               {activeTab === "upcoming"
-                ? "Click on any event to see more details and register"
+                ? "Click on any event to see more details"
                 : "Browse through our past events and photo galleries"}
             </p>
           </div>
 
-          {filteredEvents.length > 0 ? (
+          {loading && (
+            <p className="text-center text-gray-500">Loading events…</p>
+          )}
+          {err && <p className="text-center text-red-600">Error: {err}</p>}
+
+          {!loading && !err && filteredEvents.length > 0 ? (
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map(event => (
                 <div key={event.id} className="relative">
@@ -730,17 +546,11 @@ export default function EventsPage() {
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="py-12 text-center">
-              <Calendar className="mx-auto mb-4 h-16 w-16 text-gray-400" />
-              <h3 className="mb-2 text-xl font-semibold text-gray-600">
-                No events found
-              </h3>
-              <p className="text-gray-500">
-                Try selecting a different category
-              </p>
+          ) : !loading && !err ? (
+            <div className="py-12 text-center text-gray-500">
+              No events found.
             </div>
-          )}
+          ) : null}
         </div>
       </section>
 
@@ -750,21 +560,23 @@ export default function EventsPage() {
           event={selectedEvent}
           isOpen={!!selectedEvent}
           onClose={() => setSelectedEvent(null)}
-          setGalleryEvent={setGalleryEvent}
+          onOpenGallery={(images, title) => {
+            setGalleryImages(images);
+            setGalleryTitle(title);
+            setGalleryOpen(true);
+          }}
         />
       )}
 
       {/* Gallery Modal */}
-      {galleryEvent && galleryEvent.gallery && (
-        <GalleryModal
-          images={galleryEvent.gallery}
-          isOpen={!!galleryEvent}
-          onClose={() => setGalleryEvent(null)}
-          eventTitle={galleryEvent.title}
-        />
-      )}
+      <GalleryModal
+        images={galleryImages}
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={galleryTitle}
+      />
 
-      {/* CTA Section */}
+      {/* CTA */}
       <section className="bg-gradient-to-r from-primary-600 to-primary-700 py-20">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h2 className="mb-6 text-4xl font-bold text-white md:text-5xl">
@@ -795,7 +607,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer (unchanged) */}
       <footer className="bg-gray-900 py-12 text-white">
         <div className="mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">

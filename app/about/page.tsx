@@ -1,6 +1,5 @@
 "use client";
 
-import { Navigation } from "@/components/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,13 +17,11 @@ import Image from "next/image";
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/placeholder.svg?height=800&width=1920&text=About+Us"
+            src="/about.jpg?height=800&width=1920&text=About+Us"
             alt="About Us"
             fill
             className="object-cover"
@@ -293,7 +290,7 @@ export default function AboutPage() {
 
             <div className="relative">
               <Image
-                src="/placeholder.svg?height=600&width=500"
+                src="/whatwedo.jpg?height=600&width=500"
                 alt="Indonesian Club Activities"
                 width={500}
                 height={600}

@@ -1,6 +1,5 @@
 "use client";
 
-import { Navigation } from "@/components/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -254,7 +253,7 @@ function AlumniCard({ member }: { member: AlumniMember }) {
                   Advice to Students:
                 </p>
                 <p className="text-xs italic leading-relaxed text-gray-600">
-                  "{member.advice}"
+                  &quot;{member.advice}&quot;
                 </p>
               </div>
             </div>
@@ -314,13 +313,11 @@ export default function AlumniPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/placeholder.svg?height=800&width=1920&text=Alumni+Network"
+            src="/alumni.jpg?height=800&width=1920&text=Alumni+Network"
             alt="Alumni Network"
             fill
             className="object-cover"
